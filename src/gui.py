@@ -64,7 +64,10 @@ def view_take_candy(frame, candy):
             frame.after_cancel(counting_task)
             counting_task = None
 
-        view_pick_quiz_category(frame)
+        if response == RESPONSE_SUCCESS:
+            view_pick_quiz_category(frame)
+        elif response == RESPONSE_TIMEOUT:
+            timeout_message(frame)
 
     def countdown(count):
         nonlocal counting_task
@@ -72,9 +75,13 @@ def view_take_candy(frame, candy):
 
         if count > 1:
             counting_task = frame.after(COUNTDOWN_STEP, countdown, count-1)
+        else:
+            counting_task = None
+            timeout_message(frame)
 
     request_candy(candy, after_given_candy)
-    countdown(3)
+    countdown(20)
+
 
 def view_pick_candy(frame):
     clear_frame(frame)
@@ -129,6 +136,15 @@ def load_logos():
     candy2_img = Image.open("img/candy2.png")
     candy2_img = candy2_img.resize((250, 250))
     candy2_img = ImageTk.PhotoImage(candy2_img)
+
+def timeout_message(frame):
+    clear_frame(frame)
+    
+    timeout_label = tk.Label(frame, text="Laikas baigėsi! Bandykite dar kartą.", font=("Rando", 30))
+    timeout_label.pack(pady=20)
+
+    frame.after(5000, lambda: view_pick_quiz_category(frame))
+
 
 def setup_window():
     logging.info("Creating window...")
